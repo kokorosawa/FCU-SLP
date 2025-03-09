@@ -4,3 +4,5 @@ venv
 waveFile_2008
 wavefiles-all
 *.pyc
+*.log
+*.pk1

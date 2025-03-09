@@ -1,2 +1,6 @@
 .DS_Store
-
+venv
+*.zip
+waveFile_2008
+wavefiles-all
+*.pyc

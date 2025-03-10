@@ -18,6 +18,9 @@ def epd_inference(audio_input):
     x_vals = np.arange(raw_data_len)
     # x_vals = np.arange(len(pred_y))
 
+    global pred_start
+    global pred_end
+
     pred_start = frame2sample(np.where(pred_y == 1)[0][0]).reshape(-1)[0]
     pred_end = frame2sample(np.where(pred_y == 1)[0][-1]).reshape(-1)[0]
     label_start = frame2sample(np.where(label == 1)[0][0]).reshape(-1)[0]
@@ -37,42 +40,31 @@ def epd_inference(audio_input):
     fig.update_layout(title='Audio Endpoint Detection', xaxis_title='Frame', yaxis_title='Label')
     return fig
 
-def map_frame_preds_to_samples(pred_y, raw_data_len, hop_length, frame_length):
-    # 初始化每個樣本的預測值和計數器
-    sample_preds = np.zeros(raw_data_len, dtype=float)
-    count = np.zeros(raw_data_len, dtype=int)
-    
-    n_frames = len(pred_y)
-    
-    for i in range(n_frames):
-        start_sample = i * hop_length
-        end_sample = min(start_sample + frame_length, raw_data_len)
-        # 將該幀的預測值累加到該區間內的所有樣本
-        sample_preds[start_sample:end_sample] += pred_y[i]
-        # 統計每個樣本出現的次數
-        count[start_sample:end_sample] += 1
-    
-    # 將累加的預測值平均化
-    sample_preds[count > 0] = sample_preds[count > 0] / count[count > 0]
-    
-    # 如果預測值是二元 (例如 0 或 1)，可以用閾值將平均後的數值轉回離散標籤
-    sample_preds_binary = (sample_preds >= 0.5).astype(int)
-    return sample_preds_binary
-
 def clear_output():
     return None, go.Figure()
+
+def play_dect_audio(audio_input):
+    rate, raw_data = wavfile.read(audio_input)
+    global pred_start
+    global pred_end
+    clip_audio = raw_data[pred_start:pred_end]
+    wavfile.write('clip_audio.wav', rate, clip_audio)
+    return "clip_audio.wav"
 
 if __name__ == "__main__":
    with gr.Blocks() as demo:
         gr.Markdown("# Naive Bayes Classifier Audio Endpoint Detection")
         output_plot = gr.Plot()
         audio_input = gr.Audio(type="filepath")
+        clip_audio = gr.Audio(type="filepath")
         
         with gr.Row():
             submit_button = gr.Button("執行")
             clear_button = gr.Button("清除")
+            play_dect = gr.Button("播放")
         
         submit_button.click(fn=epd_inference, inputs=audio_input, outputs=output_plot)
         clear_button.click(fn=clear_output, inputs=[], outputs=[audio_input, output_plot])
+        play_dect.click(fn=play_dect_audio, inputs=[audio_input], outputs=[clip_audio])
     
         demo.launch(server_name="127.0.0.1", server_port=7860, debug=True)

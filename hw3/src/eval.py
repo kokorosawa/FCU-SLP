@@ -41,6 +41,8 @@ def score(pred_y, y):
     fs = 16000  # assuming 16kHz sampling rate
     time_diff = 0.0625  # 200ms threshold
 
+    # print(f"Predicted start: {pred_start}, Predicted end: {pred_end}")
+    # print(f"Label start: {label_start}, Label end: {label_end}")
     score = np.mean(np.abs(np.array([pred_start, pred_end]) - np.array([label_start, label_end])) < fs * time_diff)
     return score
 

@@ -9,7 +9,7 @@ frameSize = 1024
 overlap = 192
 hop = frameSize - overlap
 
-def preprocess(audio_path):
+def preprocess(audio_path, frameSize = 1024, overlap = 192):
     rate, data = wavfile.read(audio_path)
     wav_name = audio_path.split('/')[-1].split('.')[0]
     start,end = int(wav_name.split('_')[1]) , int(wav_name.split('_')[2])
@@ -29,8 +29,9 @@ def preprocess(audio_path):
 
     # mfcc = extract_mfcc(data, rate, frameSize, hop)
     # mfcc = mfcc.reshape(mfcc.shape[0], -1)
+    # print(mfcc.shape)
 
-    all_data = np.hstack((vol_data, zcr, mfcc))
+    # all_data = np.hstack((vol_data, zcr, mfcc))
     return data, label
 
 def frame2volume(data):

@@ -17,6 +17,7 @@ def preprocess(audio_path, frameSize = 1024, overlap = 192):
     data = data / (np.max(np.abs(data)))
     data = data - np.mean(data)
     data = enframe(data, frameSize, overlap)
+    print(data.shape)
     label = np.int8(np.zeros(data.shape[0]))
     start = sample2frame(start, frameSize, overlap)
     end = sample2frame(end, frameSize, overlap)
